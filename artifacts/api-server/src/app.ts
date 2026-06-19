@@ -17,16 +17,35 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", router);
 
 // Serve React frontend in production
-// __dirname is artifacts/api-server/dist at runtime; resolve up to the frontend build
+const cwd = process.cwd();
 const staticDir = path.resolve(__dirname, "../../conversation-coach/dist/public");
+const staticDirAlt = path.join(cwd, "artifacts/conversation-coach/dist/public");
+
+console.log("[startup] cwd:", cwd);
 console.log("[startup] __dirname:", __dirname);
-console.log("[startup] staticDir:", staticDir);
-console.log("[startup] staticDir exists:", existsSync(staticDir));
-if (existsSync(staticDir)) {
-  console.log("[startup] files:", readdirSync(staticDir));
-  app.use(express.static(staticDir));
+console.log("[startup] staticDir:", staticDir, "exists:", existsSync(staticDir));
+console.log("[startup] staticDirAlt:", staticDirAlt, "exists:", existsSync(staticDirAlt));
+
+const serveDir = existsSync(staticDir) ? staticDir : existsSync(staticDirAlt) ? staticDirAlt : null;
+
+if (serveDir) {
+  console.log("[startup] serving static from:", serveDir);
+  app.use(express.static(serveDir));
   app.get("*", (_req, res) => {
-    res.sendFile(path.join(staticDir, "index.html"));
+    res.sendFile(path.join(serveDir, "index.html"));
+  });
+} else {
+  // Diagnostic page when static files are missing (Vite build didn't run or path is wrong)
+  app.get("*", (_req, res) => {
+    const artifacts = existsSync(path.join(cwd, "artifacts")) ? readdirSync(path.join(cwd, "artifacts")) : "missing";
+    res.json({
+      error: "no-static-files",
+      cwd,
+      __dirname,
+      staticDir,
+      staticDirAlt,
+      artifacts,
+    });
   });
 }
 
