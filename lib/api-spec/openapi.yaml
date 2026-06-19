@@ -1,0 +1,190 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: analysis
+    description: Conversation analysis operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /analyze:
+    post:
+      operationId: analyzeConversation
+      tags: [analysis]
+      summary: Analyze a conversation
+      description: Accepts an audio file upload and returns conversation analysis
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio file to analyze
+              required:
+                - audio
+      responses:
+        "200":
+          description: Analysis results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversationAnalysis"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    SpeakerPair:
+      type: object
+      properties:
+        speaker_1:
+          type: number
+        speaker_2:
+          type: number
+      required:
+        - speaker_1
+        - speaker_2
+    TalkRatio:
+      type: object
+      properties:
+        speaker_1_pct:
+          type: number
+        speaker_2_pct:
+          type: number
+      required:
+        - speaker_1_pct
+        - speaker_2_pct
+    TranscriptLine:
+      type: object
+      properties:
+        speaker:
+          type: string
+        start:
+          type: number
+        end:
+          type: number
+        text:
+          type: string
+      required:
+        - speaker
+        - start
+        - end
+        - text
+    SpeakerToneStyle:
+      type: object
+      properties:
+        tone:
+          type: string
+          description: "Overall emotional tone (e.g. Friendly, Assertive, Neutral, Tense)"
+        style:
+          type: string
+          description: "Communication style (e.g. Direct, Collaborative, Passive, Analytical)"
+        sentiment:
+          type: string
+          enum: [positive, neutral, negative, mixed]
+        energy:
+          type: string
+          enum: [high, medium, low]
+        formality:
+          type: string
+          enum: [formal, casual, mixed]
+      required:
+        - tone
+        - style
+        - sentiment
+        - energy
+        - formality
+    ConversationToneStyle:
+      type: object
+      properties:
+        overall_tone:
+          type: string
+        overall_style:
+          type: string
+        speaker_1:
+          $ref: "#/components/schemas/SpeakerToneStyle"
+        speaker_2:
+          $ref: "#/components/schemas/SpeakerToneStyle"
+      required:
+        - overall_tone
+        - overall_style
+        - speaker_1
+        - speaker_2
+    ConversationAnalysis:
+      type: object
+      properties:
+        conversation_score:
+          type: integer
+        personality:
+          type: string
+        key_insight:
+          type: string
+        duration_seconds:
+          type: number
+        talk_ratio:
+          $ref: "#/components/schemas/TalkRatio"
+        questions:
+          $ref: "#/components/schemas/SpeakerPair"
+        interruptions:
+          $ref: "#/components/schemas/SpeakerPair"
+        speaking_speed_wpm:
+          $ref: "#/components/schemas/SpeakerPair"
+        filler_words:
+          $ref: "#/components/schemas/SpeakerPair"
+        tone_style:
+          $ref: "#/components/schemas/ConversationToneStyle"
+        transcript:
+          type: array
+          items:
+            $ref: "#/components/schemas/TranscriptLine"
+      required:
+        - conversation_score
+        - personality
+        - key_insight
+        - duration_seconds
+        - talk_ratio
+        - questions
+        - interruptions
+        - speaking_speed_wpm
+        - filler_words
+        - tone_style
+        - transcript

@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "For premium page transitions, smooth enter animations, and layout transitions"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to efficiently merge Tailwind CSS classes"
+  "lucide-react": "Beautiful, consistent icon set"
+
+images:
+  - path: "artifacts/conversation-coach/public/images/hero-bg.png"
+    description: "Abstract, very soft, minimal flowing gradient mesh in calm light blues and gentle sage greens, transparent and airy, 8k resolution, suitable for a clean tech website hero background"
+    aspect_ratio: "16:9"
+  - path: "artifacts/conversation-coach/public/images/waveform-illustration.png"
+    description: "Clean, elegant minimal illustration of an audio waveform mixed with a sparkline chart, in a soft blue and green monochromatic palette on a transparent background, modern SaaS style"
+    aspect_ratio: "16:9"
+
+notes:
+  - "The API expects multipart/form-data with an 'audio' field containing the file blob."
+  - "The frontend uses sessionStorage to pass the analysis results from the upload page to the results page."
+  - "Assuming @workspace/api-client-react is properly linked in the monorepo to provide useAnalyzeConversation."
