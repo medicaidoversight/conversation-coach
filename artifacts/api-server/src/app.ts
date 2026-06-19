@@ -12,6 +12,15 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
+// Debug endpoint
+app.get("/debug", (_req, res) => {
+  const cwd = process.cwd();
+  const dir = path.join(cwd, "artifacts/conversation-coach/dist/public");
+  const exists = existsSync(dir);
+  const files = exists ? require("fs").readdirSync(dir) : [];
+  res.json({ cwd, dir, exists, files });
+});
+
 // Serve React frontend in production
 const staticDir = path.join(process.cwd(), "artifacts/conversation-coach/dist/public");
 if (existsSync(staticDir)) {
