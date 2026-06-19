@@ -1,8 +1,12 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import path from "path";
-import { existsSync } from "fs";
+import { existsSync, readdirSync } from "fs";
+import { fileURLToPath } from "url";
 import router from "./routes";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app: Express = express();
 
@@ -12,18 +16,14 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-// Debug endpoint
-app.get("/debug", (_req, res) => {
-  const cwd = process.cwd();
-  const dir = path.join(cwd, "artifacts/conversation-coach/dist/public");
-  const exists = existsSync(dir);
-  const files = exists ? require("fs").readdirSync(dir) : [];
-  res.json({ cwd, dir, exists, files });
-});
-
 // Serve React frontend in production
-const staticDir = path.join(process.cwd(), "artifacts/conversation-coach/dist/public");
+// __dirname is artifacts/api-server/dist at runtime; resolve up to the frontend build
+const staticDir = path.resolve(__dirname, "../../conversation-coach/dist/public");
+console.log("[startup] __dirname:", __dirname);
+console.log("[startup] staticDir:", staticDir);
+console.log("[startup] staticDir exists:", existsSync(staticDir));
 if (existsSync(staticDir)) {
+  console.log("[startup] files:", readdirSync(staticDir));
   app.use(express.static(staticDir));
   app.get("*", (_req, res) => {
     res.sendFile(path.join(staticDir, "index.html"));
