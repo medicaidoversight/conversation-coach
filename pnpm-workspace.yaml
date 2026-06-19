@@ -30,10 +30,7 @@ catalog:
   zod: ^3.25.76
 
 onlyBuiltDependencies:
-  - '@swc/core'
   - esbuild
-  - msw
-  - unrs-resolver
 
 overrides:
   '@esbuild-kit/esm-loader': npm:tsx@^4.21.0
