@@ -22,12 +22,12 @@ console.log("[startup] staticDir:", staticDir, "exists:", existsSync(staticDir))
 if (existsSync(staticDir)) {
   console.log("[startup] static files:", readdirSync(staticDir).slice(0, 5));
   app.use(express.static(staticDir));
-  app.get("*", (_req, res) => {
+  app.use((_req, res) => {
     res.sendFile(path.join(staticDir, "index.html"));
   });
 } else {
   // Diagnostic page when static files are missing
-  app.get("*", (_req, res) => {
+  app.use((_req, res) => {
     const artifactsPath = path.join(cwd, "artifacts");
     const artifacts = existsSync(artifactsPath) ? readdirSync(artifactsPath) : ["<dir-missing>"];
     const convPath = path.join(cwd, "artifacts/conversation-coach");
