@@ -1,0 +1,13 @@
+name = "conversation-coach"
+main = "artifacts/cf-workers/conversation-coach-api/worker.ts"
+compatibility_date = "2024-01-01"
+
+# Static SPA (built by `pnpm build:web`)
+[assets]
+directory = "./artifacts/conversation-coach/dist/public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+# Secret (not in git):
+#   wrangler secret put ASSEMBLYAI_API_KEY
+# Without the secret, /api/analyze returns mock coaching data (demo mode).

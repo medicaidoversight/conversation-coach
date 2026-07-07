@@ -1,8 +1,7 @@
 import { Router, type IRouter } from "express";
 import multer from "multer";
 import { AnalyzeConversationResponse } from "@workspace/api-zod";
-import { getMockAnalysis } from "../lib/mockAnalysis";
-import { analyzeWithAssemblyAI } from "../lib/assemblyaiService";
+import { analyzeConversation } from "@workspace/conversation-analysis";
 
 const router: IRouter = Router();
 
@@ -36,16 +35,18 @@ router.post("/analyze", upload.single("audio"), async (req, res): Promise<void> 
   }
 
   try {
-    if (process.env.ASSEMBLYAI_API_KEY) {
-      console.log(`Processing audio file: ${req.file.originalname} (${(req.file.size / 1024 / 1024).toFixed(2)} MB)`);
-      const analysis = await analyzeWithAssemblyAI(req.file.buffer, req.file.mimetype);
-      res.json(AnalyzeConversationResponse.parse(analysis));
+    const apiKey = process.env.ASSEMBLYAI_API_KEY;
+    if (apiKey) {
+      console.log(
+        `Processing audio file: ${req.file.originalname} (${(req.file.size / 1024 / 1024).toFixed(2)} MB)`,
+      );
     } else {
       console.log("No ASSEMBLYAI_API_KEY found, returning mock data");
       await new Promise((resolve) => setTimeout(resolve, 1500));
-      const analysis = getMockAnalysis();
-      res.json(AnalyzeConversationResponse.parse(analysis));
     }
+
+    const analysis = await analyzeConversation(new Uint8Array(req.file.buffer), apiKey);
+    res.json(AnalyzeConversationResponse.parse(analysis));
   } catch (error) {
     console.error("Analysis error:", error);
     res.status(500).json({ error: "We couldn't analyze that file. Please try again." });

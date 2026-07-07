@@ -4,12 +4,16 @@
   "license": "MIT",
   "scripts": {
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "build:web": "pnpm --filter @workspace/conversation-coach build",
+    "deploy:cf": "pnpm build:web && wrangler deploy",
+    "test:analysis": "pnpm --filter @workspace/conversation-analysis test",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
   },
   "private": true,
   "devDependencies": {
+    "prettier": "^3.8.1",
     "typescript": "~5.9.2",
-    "prettier": "^3.8.1"
+    "wrangler": "^4.14.0"
   }
 }
