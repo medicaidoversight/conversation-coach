@@ -1,8 +1,4 @@
-import { AssemblyAI } from "assemblyai";
-
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY || "",
-});
+import type { AssemblyTranscript } from "./assemblyai-fetch.js";
 
 const FILLER_WORDS = new Set([
   "um", "uh", "erm", "ah", "like", "you know", "i mean",
@@ -228,17 +224,7 @@ function detectInterruptions(
   return result;
 }
 
-export async function analyzeWithAssemblyAI(audioBuffer: Buffer, mimeType: string) {
-  const transcript = await client.transcripts.transcribe({
-    audio: audioBuffer,
-    speaker_labels: true,
-    speech_models: ["universal-2"],
-  } as any);
-
-  if (transcript.status === "error") {
-    throw new Error(`Transcription failed: ${transcript.error}`);
-  }
-
+export function buildConversationAnalysis(transcript: AssemblyTranscript) {
   const utterances = transcript.utterances || [];
   const words = transcript.words || [];
 
